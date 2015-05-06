@@ -1,5 +1,9 @@
 
 var level = module.exports = function(db) {
+  if (typeof db == 'undefined') {
+    throw new Error('you must pass in a leveldb instance')
+  }
+  
   return function(Model) {
     Model.store = db
     Model.save = level.save
