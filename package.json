@@ -6,6 +6,16 @@
   "author": "Erik Kristensen <erik@erikkristensen.com>",
   "license": "MIT",
   "dependencies": {
-    "level-secondary": "^1.1.0"
+    "level-secondary": "^1.1.1"
+  },
+  "devDependencies": {
+    "level": "^0.19.1",
+    "level-sublevel": "^6.4.6",
+    "memdb": "^1.0.0",
+    "modella": "^0.2.14",
+    "tape": "^4.0.0"
+  },
+  "scripts": {
+    "test": "node test.js"
   }
 }

@@ -7,7 +7,7 @@ var level = module.exports = function(db) {
   }
 
   return function(Model) {
-    var store = db.sublevel(Model.modelName)
+    Model.store = db.sublevel(Model.modelName)
     var indexedAttrs = []
 
     Model.once('initialize', function() {
@@ -22,7 +22,6 @@ var level = module.exports = function(db) {
       })
     })
 
-    Model.store = store
     Model.save = level.save
     Model.update = level.update
     Model.remove = level.remove
@@ -70,10 +69,19 @@ level.find = function(id, fn) {
 }
 
 level.getBy = function(field, value, fn) {
+  var self = this
+
   var getBy = ('by' + field).toLowerCase()
+
   if (typeof this.store[getBy] == 'undefined') {
     return fn(new Error('field does not exist'))
   }
 
-  this.store[getBy].get(value, fn)
+  this.store[getBy].get(value, function(err, value2) {
+    if (err) {
+      return fn(err)
+    }
+
+    fn(err, new self(value2))
+  })
 }
