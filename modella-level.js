@@ -1,15 +1,34 @@
 
+var Secondary = require('level-secondary')
+
 var level = module.exports = function(db) {
   if (typeof db == 'undefined') {
     throw new Error('you must pass in a leveldb instance')
   }
-  
+
   return function(Model) {
-    Model.store = db
+    var store = db.sublevel(Model.modelName)
+    var indexedAttrs = []
+
+    Model.once('initialize', function() {
+      for (var attr in Model.attrs) {
+        if (Model.attrs[attr].index) {
+          indexedAttrs.push(attr)
+        }
+      }
+
+      indexedAttrs.forEach(function(i) {
+        Model.store[('by' + i).toLowerCase()] = Secondary(Model.store, i)
+      })
+    })
+
+    Model.store = store
     Model.save = level.save
     Model.update = level.update
     Model.remove = level.remove
+    Model.getBy = level.getBy
     Model.find = Model.get = level.find
+
     return Model
   }
 }
@@ -50,3 +69,11 @@ level.find = function(id, fn) {
   })
 }
 
+level.getBy = function(field, value, fn) {
+  var getBy = ('by' + field).toLowerCase()
+  if (typeof this.store[getBy] == 'undefined') {
+    return fn(new Error('field does not exist'))
+  }
+
+  this.store[getBy].get(value, fn)
+}
