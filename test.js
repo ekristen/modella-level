@@ -69,3 +69,26 @@ test('find by index', function(t) {
   })
 })
 
+
+test('del by index', function(t) {
+  t.plan(2)
+
+  var db = sublevel(level({ valueEncoding: 'json' }));
+  
+  var User = model('user')
+    .use(modeldb(db))
+    .attr('id')
+    .attr('email', { index: true })
+
+  var userObj = {id: 1, email: "test@test.com"}
+
+  var u = new User(userObj)
+  u.save(function(err, user_data) {
+    t.ok(!err)    
+    
+    User.delBy('email', userObj.email, function(err) {
+      t.ifError(err)
+    })
+  })
+})
+

@@ -13,20 +13,17 @@ var level = module.exports = function(db) {
     Model.once('initialize', function() {
       for (var attr in Model.attrs) {
         if (Model.attrs[attr].index) {
-          indexedAttrs.push(attr)
+          Model.store[('by' + attr).toLowerCase()] = Secondary(Model.store, attr)
         }
       }
-
-      indexedAttrs.forEach(function(i) {
-        Model.store[('by' + i).toLowerCase()] = Secondary(Model.store, i)
-      })
     })
 
     Model.save = level.save
     Model.update = level.update
     Model.remove = level.remove
-    Model.getBy = level.getBy
     Model.find = Model.get = level.find
+    Model.findBy = Model.getBy = level.findBy
+    Model.removeBy = Model.delBy = level.removeBy
 
     return Model
   }
@@ -68,7 +65,7 @@ level.find = function(id, fn) {
   })
 }
 
-level.getBy = function(field, value, fn) {
+level.findBy = function(field, value, fn) {
   var self = this
 
   var getBy = ('by' + field).toLowerCase()
@@ -83,5 +80,23 @@ level.getBy = function(field, value, fn) {
     }
 
     fn(err, new self(value2))
+  })
+}
+
+level.removeBy = function(field, value, fn) {
+  var self = this
+
+  var getBy = ('by' + field).toLowerCase()
+
+  if (typeof this.store[getBy] == 'undefined') {
+    return fn(new Error('field does not exist'))
+  }
+  
+  this.store[getBy].del(value, function(err, value2) {
+    if (err) {
+      return fn(err)
+    }
+
+    fn(err, null)
   })
 }
