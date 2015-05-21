@@ -24,11 +24,25 @@ var level = module.exports = function(db) {
     Model.save = level.save
     Model.update = level.update
     Model.remove = level.remove
-    Model.find = Model.get = level.find
+    Model.get = level.get
 
     Model.search = search.bind(search, store)
     Model.select = select.bind(select, store)
     Model.filter = filter.bind(filter, store)
+
+    Model.find = function(query, callback) {
+      Model.search(query, function(err, results) {
+        if (err) {
+          return callback(err)
+        }
+
+        if (results.length == 0) {
+          return callack(null, results)
+        }
+
+        callback(null, results[0].value)
+      })
+    }
 
     return Model
   }
@@ -56,7 +70,7 @@ level.remove = function(fn) {
   this.store.del(this.primary(), fn)
 }
 
-level.find = function(id, fn) {
+level.get = function(id, fn) {
   var self = this
 
   this.store.get(id, {valueEncoding: 'json'}, function(err, result) {
