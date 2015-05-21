@@ -1,18 +1,20 @@
 {
   "name": "modella-level",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Simple middlware for Modella and LevelDB",
   "main": "modella-level.js",
   "author": "Erik Kristensen <erik@erikkristensen.com>",
   "license": "MIT",
   "dependencies": {
-    "level-secondary": "^1.1.1"
+    "level-scout": "^0.4.1",
+    "level-sublevel": "^6.4.6",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "level": "^0.19.1",
-    "level-sublevel": "^6.4.6",
     "memdb": "^1.0.0",
     "modella": "^0.2.14",
+    "rimraf": "^2.3.4",
     "tape": "^4.0.0"
   },
   "scripts": {

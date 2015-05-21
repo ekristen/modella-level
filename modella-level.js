@@ -1,5 +1,7 @@
-
-var Secondary = require('level-secondary')
+var xtend     = require('xtend')
+var index     = require('level-scout/index')
+var search    = require('level-scout/search')
+var sublevel  = require('level-sublevel/bytewise')
 
 var level = module.exports = function(db) {
   if (typeof db == 'undefined') {
@@ -7,23 +9,22 @@ var level = module.exports = function(db) {
   }
 
   return function(Model) {
-    Model.store = db.sublevel(Model.modelName)
-    var indexedAttrs = []
+    var store = sublevel(db).sublevel(Model.modelName)
 
-    Model.once('initialize', function() {
-      for (var attr in Model.attrs) {
-        if (Model.attrs[attr].index) {
-          Model.store[('by' + attr).toLowerCase()] = Secondary(Model.store, attr)
-        }
+    for (var attr in Model.attrs) {
+      if (Model.attrs[attr].index) {
+        index(store, [attr, Model.primaryKey])
       }
-    })
+    }
+
+    Model.store = store
 
     Model.save = level.save
     Model.update = level.update
     Model.remove = level.remove
     Model.find = Model.get = level.find
-    Model.findBy = Model.getBy = level.findBy
-    Model.removeBy = Model.delBy = level.removeBy
+
+    Model.search = search.bind(search, Model.store)
 
     return Model
   }
@@ -54,7 +55,7 @@ level.remove = function(fn) {
 level.find = function(id, fn) {
   var self = this
 
-  this.store.get(id, function(err, result) {
+  this.store.get(id, {valueEncoding: 'json'}, function(err, result) {
     if (err && err.notFound) {
       return fn(new Error('unable to find ' + self.modelName + ' with id: ' + id), false)
     }
@@ -65,38 +66,4 @@ level.find = function(id, fn) {
   })
 }
 
-level.findBy = function(field, value, fn) {
-  var self = this
 
-  var getBy = ('by' + field).toLowerCase()
-
-  if (typeof this.store[getBy] == 'undefined') {
-    return fn(new Error('field does not exist'))
-  }
-
-  this.store[getBy].get(value, function(err, value2) {
-    if (err) {
-      return fn(err)
-    }
-
-    fn(err, new self(value2))
-  })
-}
-
-level.removeBy = function(field, value, fn) {
-  var self = this
-
-  var getBy = ('by' + field).toLowerCase()
-
-  if (typeof this.store[getBy] == 'undefined') {
-    return fn(new Error('field does not exist'))
-  }
-  
-  this.store[getBy].del(value, function(err, value2) {
-    if (err) {
-      return fn(err)
-    }
-
-    fn(err, null)
-  })
-}
