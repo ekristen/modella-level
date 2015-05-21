@@ -7,7 +7,7 @@ var rimraf = require('rimraf')
 test('save', function(t) {
   t.plan(1)
 
-  var db = level('./db_save', { valueEncoding: 'json' }, function() {
+  level('./db_save', { valueEncoding: 'json' }, function(err, db) {
 
     var User = model('user')
       .use(modeldb(db))
@@ -28,7 +28,7 @@ test('save', function(t) {
 test('find by id', function(t) {
   t.plan(3)
 
-  var db = level('./db_findbyid', { valueEncoding: 'json' }, function(err) {
+  level('./db_findbyid', { valueEncoding: 'json' }, function(err, db) {
     var User = model('user')
       .attr('id')
       .attr('email')

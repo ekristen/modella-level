@@ -1,6 +1,6 @@
 {
   "name": "modella-level",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Simple middlware for Modella and LevelDB",
   "main": "modella-level.js",
   "author": "Erik Kristensen <erik@erikkristensen.com>",

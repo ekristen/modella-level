@@ -1,6 +1,8 @@
 var xtend     = require('xtend')
 var index     = require('level-scout/index')
 var search    = require('level-scout/search')
+var filter    = require('level-scout/filter')
+var select    = require('level-scout/select')
 var sublevel  = require('level-sublevel/bytewise')
 
 var level = module.exports = function(db) {
@@ -24,7 +26,9 @@ var level = module.exports = function(db) {
     Model.remove = level.remove
     Model.find = Model.get = level.find
 
-    Model.search = search.bind(search, Model.store)
+    Model.search = search.bind(search, store)
+    Model.select = select.bind(select, store)
+    Model.filter = filter.bind(filter, store)
 
     return Model
   }
