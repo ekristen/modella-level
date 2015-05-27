@@ -15,7 +15,11 @@ var level = module.exports = function(db) {
 
     for (var attr in Model.attrs) {
       if (Model.attrs[attr].index) {
-        index(store, [attr, Model.primaryKey])
+        index(store, attr)
+        
+        if (Model.attrs[attr].index_fields) {
+          index(store, Model.attrs[attr].index_fields)
+        }
       }
     }
 
@@ -37,10 +41,10 @@ var level = module.exports = function(db) {
         }
 
         if (results.length == 0) {
-          return callack(null, results)
+          return callback(null, results)
         }
 
-        callback(null, results[0].value)
+        callback(null, new Model(results[0].value))
       })
     }
 
