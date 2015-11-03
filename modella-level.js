@@ -71,13 +71,13 @@ level.save = function(fn) {
 level.update = level.save
 
 level.remove = function(fn) {
-  this.store.del(this.primary(), fn)
+  this.model.store.del(this.primary(), fn)
 }
 
 level.get = function(id, fn) {
   var self = this
 
-  this.store.get(id, {valueEncoding: 'json'}, function(err, result) {
+  this.model.store.get(id, {valueEncoding: 'json'}, function(err, result) {
     if (err && err.notFound) {
       return fn(new Error('unable to find ' + self.modelName + ' with id: ' + id), false)
     }
